@@ -3,6 +3,7 @@
 
 namespace Im;
 
+use Im\Data\UserData;
 use Swoole\WebSocket\Server;
 
 /**
@@ -44,7 +45,10 @@ class WebIm
             $server->push($request->fd, "用户不存在");
             $server->close($request->fd);
         }
-        $this->redis->set('im:user:' . $userName, $request->fd);
+        // 设置用户信息
+        (new UserData($userName))->setFd($request->fd)
+            ->online()
+            ->handle();
     }
 
     /**
@@ -54,7 +58,16 @@ class WebIm
      */
     public function message(Server $server, $request)
     {
-
+        $sendJson = $request->data;
+        if ($sendJson) {
+            $sendData = json_decode($sendJson, true);
+            switch ($sendData['type']) {
+                // 一对一消息
+                case 'solo':
+                    (new Message())->sendSolo($server, $sendData['formUser'], $sendData['toUser'], $sendData['message']);
+                    break;
+            }
+        }
     }
 
     /**

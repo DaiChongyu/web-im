@@ -10,5 +10,11 @@ namespace Im;
  */
 class Group
 {
-
+    /**
+     * 创建群聊
+     */
+    public function create()
+    {
+        
+    }
 }
