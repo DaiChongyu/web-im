@@ -79,6 +79,12 @@ class UserData
      */
     public function handle()
     {
+        if (isset($this->info['fd'])) {
+            // 绑定关系
+            (new FdUserData())->setFd($this->info['fd'])
+                ->setMember($this->info['name'])
+                ->handle();
+        }
         return $this->redis->hMSet($this->key(), $this->info);
     }
 

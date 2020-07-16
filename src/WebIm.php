@@ -3,6 +3,7 @@
 
 namespace Im;
 
+use Im\Data\FdUserData;
 use Im\Data\UserData;
 use Swoole\WebSocket\Server;
 
@@ -13,11 +14,8 @@ use Swoole\WebSocket\Server;
  */
 class WebIm
 {
-    private $redis;
-
     public function __construct()
     {
-        $this->redis = RedisConnManager::getRedisConn();
     }
 
     /**
@@ -77,7 +75,12 @@ class WebIm
      */
     public function close(Server $server, $request)
     {
-
+        $user = (new FdUserData())->getUserByFd($request);
+        if (!$user) return;
+        // 下线用户
+        (new UserData($user[0]))
+            ->offline()
+            ->handle();
     }
 
 }
